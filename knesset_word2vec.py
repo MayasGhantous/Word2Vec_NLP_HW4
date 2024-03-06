@@ -3,8 +3,11 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from gensim.models import Word2Vec
 
+
 import os
 import heapq
+
+
 
 def make_list_of_sentence(sentnce):
     tokens = sentnce.strip().split(' ')
@@ -63,6 +66,16 @@ def embeddings_of_sentences(sententces,model):
     return sentence_dir,above_4_and_under_10
             
 
+def section2_part4(dir,model):
+    sentences = [
+    "ברוכים הבאים , הכנסו בבקשה [לחדר] .",
+    "אני [מוכנה] להאריך את [ההסכם] באותם תנאים .",
+    "בוקר [טוב] , אני [פותח] את הישיבה .",
+    "שלום] , הערב התבשרנו שחברינו [היקר] לא ימשיך איתנו [בשנה] הבאה] ."
+    ]
+
+    room = model.wv.most_similar(positive=['חדר','אולם','לחדר',],negative=[], topn=3)
+    print(room)
 
 
 
@@ -70,21 +83,25 @@ def embeddings_of_sentences(sententces,model):
 if __name__ == '__main__':
 
     dir = ''
-    #section 1 part 1
     data = pd.read_csv('knesset_corpus.csv')
+    #section 1 part 1
+    '''
     tokenized_sentences  = make_list(data['sentence_text'])
 
     #section 1 part 2
     model = Word2Vec(sentences=tokenized_sentences, vector_size=100, window=5, min_count=1)
     #model.train(['ישראל'],epochs=3)
-    model.save("knesset_word2vec.model")
+    model.save("knesset_word2vec.model")'''
+    model = Word2Vec.load("knesset_word2vec.model")
+
     
 
     #section 2
+    
     #section 2, part 1
     Section2_part1(dir,model)
 
-    #section 2, part 2
+    #section 2, part 2 and 3
     sentence_embeddings, allowed_sentences = embeddings_of_sentences(data['sentence_text'],model)
     #sentences_index = allowed_sentences[:10]
     #sentences_index = [330,166,369,465,527,553,680,1168,1263,1331]
@@ -98,5 +115,10 @@ if __name__ == '__main__':
         text+=data.iloc[max_index]['sentence_text']+'\n'
     with open(os.path.join(dir,'knesset_similar_sentences.txt'),'w',encoding='utf-8') as file:
         file.write(text)
+    
+    #section2, part4
+    section2_part4(dir,model)
+    
+    
     
 
