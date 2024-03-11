@@ -52,18 +52,15 @@ def Section2_part1(dir,model):
 
 def embeddings_of_sentences(sententces,model):
     sentence_dir = []
-    above_4_and_under_10 =[]
     for i,sentence in enumerate(sententces):
         tokens = make_list_of_sentence(sentence)
-        if len(tokens) >=4 and len(tokens) <=10:
-            above_4_and_under_10.append(i)
         avarage = np.zeros(100)
         for token in tokens:
             avarage += model.wv[token]
         avarage = avarage / len(token)
         sentence_dir.append(avarage)
     sentence_dir = np.array(sentence_dir)
-    return sentence_dir,above_4_and_under_10
+    return sentence_dir
             
 
 def section2_part4(dir,model):
@@ -74,7 +71,10 @@ def section2_part4(dir,model):
     "שלום] , הערב התבשרנו שחברינו [היקר] לא ימשיך איתנו [בשנה] הבאה] ."
     ]
 
-    room = model.wv.most_similar(positive=['חדר','אולם','לחדר',],negative=[], topn=3)
+    room = model.wv.most_similar(positive=['אולם',"שתכנס"],negative=[], topn=1000)#the thierd one gives "to the home"
+    ready = model.wv.most_similar(positive=['יכול','מוכנה'],negative=[], topn=3)#the thired one gives יכולה
+    good = model.wv.most_similar(positive=['מציון'],negative=[], topn=100)#the thired one gives ready but for male
+    
     print(room)
 
 
@@ -102,17 +102,37 @@ if __name__ == '__main__':
     Section2_part1(dir,model)
 
     #section 2, part 2 and 3
-    sentence_embeddings, allowed_sentences = embeddings_of_sentences(data['sentence_text'],model)
-    #sentences_index = allowed_sentences[:10]
-    #sentences_index = [330,166,369,465,527,553,680,1168,1263,1331]
-    sentences_index = [329,165,368,464,526,552,679,1167,1262,1330]
+    sentence_embeddings = embeddings_of_sentences(data['sentence_text'],model)
+    #sentences_index = [75158,679,75880,76626,77589,1330,368,77840,78170,78304]
+    hebrew_sentences = [
+    "אבל זה אותו דבר .",
+    "ולכן , צריך להביא את זה בחשבון .",
+    "אני לא מוכן לקבל את זה .",
+    "אם כן , רבותי, אנחנו עוברים להצבעה .",
+    "זה לא דבר שהוא חדש .",
+    "מה התפקיד שלכם בנושא הזה ?",
+    "בגלל שאני אומר את האמת ?",
+    "בכל מקרה ההצבעה לא תתקיים היום .",
+    "אני לא כל כך מבין .",
+    "איך ייתכן דבר כזה ?"
+    ]
+
     text = ""
-    our_index_embeddings = sentence_embeddings[sentences_index]
+    our_index_embeddings = embeddings_of_sentences(hebrew_sentences,model)
     matrix = cosine_similarity(our_index_embeddings,sentence_embeddings)
+    '''
     for i,index in enumerate(sentences_index):
         text+=data.iloc[index]['sentence_text']+': most similar sentence: '
         max_index = matrix[i].argsort()[-2]
         text+=data.iloc[max_index]['sentence_text']+'\n'
+    text = text[:-1]
+    '''
+    
+    for i,index in enumerate(our_index_embeddings):
+        text+=hebrew_sentences[i]+': most similar sentence: '
+        max_index = matrix[i].argsort()[-2]
+        text+=data.iloc[max_index]['sentence_text']+'\n'
+    text = text[:-1]
     with open(os.path.join(dir,'knesset_similar_sentences.txt'),'w',encoding='utf-8') as file:
         file.write(text)
     
