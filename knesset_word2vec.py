@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from gensim.models import Word2Vec
-
+import sys
+import random
 
 import os
 
@@ -124,7 +125,8 @@ def section2_part4(dir,model):
 
 if __name__ == '__main__':
     try:
-
+        random.seed(42)
+        np.random.seed(42)
         dir = ''
         data = pd.read_csv('knesset_corpus.csv')
         #section 1 part 1
