@@ -5,10 +5,11 @@ import sklearn
 from sklearn.model_selection import cross_val_predict,train_test_split
 from gensim.models import Word2Vec
 from sklearn.neighbors import KNeighborsClassifier
-
+import sys
+chunk_size = 1
 def process(group):
     try:
-        chunk_size = 5
+        
         
         sentences = group['sentence_text'].tolist()
         #create the data
@@ -90,36 +91,48 @@ def down_sample(data,N):
 
 if __name__=='__main__':
     try:
-        data_path = 'knesset_corpus.csv'
-        model_path = 'knesset_word2vec.model'
-        model = Word2Vec.load(model_path)
-        df = pd.read_csv(data_path)
-        df = make_chunks(df)
+        if len(sys.argv) != 3:
+            print('must have 2 args')
+            exit(1)
+        
+        data_path = sys.argv[1]
+        model_path = sys.argv[2]
+        chunk_sizes = [1,3,5]
+        for main_chunk_size in chunk_sizes:
 
-        committee_data = df.loc[df['protocol_type'] == 'committee'].reset_index(drop=True)
-        plenary_data = df.loc[df['protocol_type'] == 'plenary'].reset_index(drop=True)
+            print(f'for chunk size {main_chunk_size}')
+            chunk_size = main_chunk_size
+            
+            model = Word2Vec.load(model_path)
+            df = pd.read_csv(data_path)
+            #make chunks
+            df = make_chunks(df)
 
-        #plenary_data = process(plenary_data)
-        #committee_data = process(committee_data)
+            committee_data = df.loc[df['protocol_type'] == 'committee'].reset_index(drop=True)
+            plenary_data = df.loc[df['protocol_type'] == 'plenary'].reset_index(drop=True)
 
-        plenary_data = down_sample(plenary_data,len(plenary_data) -len(committee_data))
-        committee_data = down_sample(committee_data,len(committee_data)-len(plenary_data))
+            #plenary_data = process(plenary_data)
+            #committee_data = process(committee_data)
 
-        data = pd.concat([plenary_data,committee_data])
-        data = data.sample(frac=1,random_state=42).reset_index(drop = True)
+            #down sample the data
+            plenary_data = down_sample(plenary_data,len(plenary_data) -len(committee_data))
+            committee_data = down_sample(committee_data,len(committee_data)-len(plenary_data))
 
-        labels = data['protocol_type']
-        features = embeddings_of_sentences(data['sentence_text'],model)
+            data = pd.concat([plenary_data,committee_data])
+            data = data.sample(frac=1,random_state=42).reset_index(drop = True)
 
-        KNN = KNeighborsClassifier(10)
-        print(f'KNN with corss validation: ')
-        KNN_cross_validation = cross_val_predict(KNN,features,labels,cv=10,n_jobs=-1)
-        print(sklearn.metrics.classification_report(labels, KNN_cross_validation))
+            labels = data['protocol_type']
+            features = embeddings_of_sentences(data['sentence_text'],model)
 
-        X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.1, random_state=42,stratify=labels)
-        KNN.fit(X_train,y_train)
-        print(f'KNN with split: ')
-        y_pred = KNN.predict(X_test)
-        print(sklearn.metrics.classification_report(y_test, y_pred))
+            KNN = KNeighborsClassifier(50)
+            print(f'KNN with corss validation: ')
+            KNN_cross_validation = cross_val_predict(KNN,features,labels,cv=10)
+            print(sklearn.metrics.classification_report(labels, KNN_cross_validation))
+
+            X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.1, random_state=42,stratify=labels)
+            KNN.fit(X_train,y_train)
+            print(f'KNN with split: ')
+            y_pred = KNN.predict(X_test)
+            print(sklearn.metrics.classification_report(y_test, y_pred))
     except Exception as ex:
         print(f'Exception at main: {ex}')
