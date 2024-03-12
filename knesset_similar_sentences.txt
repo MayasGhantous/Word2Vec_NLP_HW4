@@ -7,4 +7,4 @@
 בגלל שאני אומר את האמת ?: most similar sentence: אני אומר את דעתי , ודעתי שונה מדעתך .
 בכל מקרה ההצבעה לא תתקיים היום .: most similar sentence: היום , בכל אופן , לא תהיה הצבעה .
 אני לא כל כך מבין .: most similar sentence: אני לא כל כך הבנתי .
-איך ייתכן דבר כזה ?: most similar sentence: איך קורה כזה דבר ?
+איך ייתכן דבר כזה ?: most similar sentence: איך קורה דבר כזה ?
