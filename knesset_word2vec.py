@@ -70,13 +70,37 @@ def section2_part4(dir,model):
     "בוקר [טוב] , אני [פותח] את הישיבה .",
     "שלום] , הערב התבשרנו שחברינו [היקר] לא ימשיך איתנו [בשנה] הבאה] ."
     ]
-
-    room = model.wv.most_similar(positive=['אולם',"שתכנס"],negative=[], topn=1000)#the thierd one gives "to the home"
-    ready = model.wv.most_similar(positive=['יכול','מוכנה'],negative=[], topn=3)#the thired one gives יכולה
-    good = model.wv.most_similar(positive=['מציון'],negative=[], topn=100)#the thired one gives ready but for male
     
-    print(room)
+    sentences = [sentence.replace(']','').replace('[','') for sentence in sentences]
+    room = model.wv.most_similar(positive=["שתבוא",'אולם'],negative=[], topn=3)#the first one gives לאולם
+    ready = model.wv.most_similar(positive=['יכול','מוכנה'],negative=[], topn=3)#the thired one gives יכולה
+    agreement = model.wv.most_similar(positive=['ההסכם'],negative=[], topn=3)#the thired one gives המהלך
+    good = model.wv.most_similar(positive=["טוב","שמש"],negative=[], topn=3)#the thired one gives בריא
+    word_open = model.wv.most_similar(positive=["מתחיל"],negative=[], topn=3)#the thired one gives ממשיך
+    peace = model.wv.most_similar(positive=["רבותי","שלום","חברי","תודה"],negative=[], topn=100)#the thired one gives עמיתי
+    dear = model.wv.most_similar(positive=["הטוב"],negative=[], topn=3)#the second give הגדול
+    year = model.wv.most_similar(positive=['בשנה'],negative=[], topn=3)#thes second gives השנה
 
+
+    
+    room = 'לאולם'
+    ready = "יכולה"
+    agreement = "המהלך"
+    good = 'בריא'# in attempt of getting אור
+    word_open = "ממשיך"
+    peace  = "עמיתי"
+    dear = "הגדול"
+    year = "השנה"
+    changed_sentences = []
+    changed_sentences.append(sentences[0].replace("לחדר",room))
+    changed_sentences.append(sentences[1].replace("מוכנה",ready).replace('ההסכם',agreement))
+    changed_sentences.append(sentences[2].replace("טוב",good).replace('פותח',word_open))
+    changed_sentences.append(sentences[3].replace("שלום",peace).replace('היקר',dear).replace('בשנה',year))
+
+    text = '\n'.join([sentences[i]+': '+changed_sentences[i] for i in range(len(sentences))])
+    with open(os.path.join(dir,'red_words_sentences.txt'),'w',encoding='utf-8') as file:
+        file.write(text)
+        
 
 
 
@@ -85,13 +109,13 @@ if __name__ == '__main__':
     dir = ''
     data = pd.read_csv('knesset_corpus.csv')
     #section 1 part 1
-    '''
+    
     tokenized_sentences  = make_list(data['sentence_text'])
 
     #section 1 part 2
     model = Word2Vec(sentences=tokenized_sentences, vector_size=100, window=5, min_count=1)
     #model.train(['ישראל'],epochs=3)
-    model.save("knesset_word2vec.model")'''
+    model.save("knesset_word2vec.model")
     model = Word2Vec.load("knesset_word2vec.model")
 
     
@@ -120,13 +144,13 @@ if __name__ == '__main__':
     text = ""
     our_index_embeddings = embeddings_of_sentences(hebrew_sentences,model)
     matrix = cosine_similarity(our_index_embeddings,sentence_embeddings)
-    '''
-    for i,index in enumerate(sentences_index):
-        text+=data.iloc[index]['sentence_text']+': most similar sentence: '
-        max_index = matrix[i].argsort()[-2]
-        text+=data.iloc[max_index]['sentence_text']+'\n'
-    text = text[:-1]
-    '''
+    
+    #for i,index in enumerate(sentences_index):
+        #text+=data.iloc[index]['sentence_text']+': most similar sentence: '
+        #max_index = matrix[i].argsort()[-2]
+        #text+=data.iloc[max_index]['sentence_text']+'\n'
+    #text = text[:-1]
+    
     
     for i,index in enumerate(our_index_embeddings):
         text+=hebrew_sentences[i]+': most similar sentence: '
