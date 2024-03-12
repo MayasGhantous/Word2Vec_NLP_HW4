@@ -180,6 +180,16 @@ if __name__ == '__main__':
         
         #section2, part4
         section2_part4(dir,model)
+
+
+        #question part: 
+        '''
+        words_list =['חם',"גדול","יפה","טוב","שמח","עשיר","ראשון","אהבה"]
+        op_words =['קר',"קטן","מכוער","רע","עצוב","עני","אחרון","שנאה"]
+        for word_i in range(len(words_list)):
+            similarty_score = model.wv.similarity(words_list[word_i],op_words[word_i])
+            print(f'{words_list[word_i][::-1]},{op_words[word_i][::-1]}: {similarty_score}')
+        '''
     except Exception as ex:
         print(f'Exception at main: {ex}')
     
