@@ -6,7 +6,9 @@ from sklearn.model_selection import cross_val_predict,train_test_split
 from gensim.models import Word2Vec
 from sklearn.neighbors import KNeighborsClassifier
 import sys
+import os
 chunk_size = 1
+os.environ['LOKY_MAX_CPU_COUNT'] = '4'
 def process(group):
     try:
         
@@ -94,7 +96,8 @@ if __name__=='__main__':
         if len(sys.argv) != 3:
             print('must have 2 args')
             exit(1)
-        
+        random.seed(42)
+        np.random.seed(42)
         data_path = sys.argv[1]
         model_path = sys.argv[2]
         chunk_sizes = [1,3,5]
@@ -122,9 +125,9 @@ if __name__=='__main__':
             labels = data['protocol_type']
             features = embeddings_of_sentences(data['sentence_text'],model)
 
-            KNN = KNeighborsClassifier(10)
+            KNN = KNeighborsClassifier(50)
             print(f'KNN with corss validation: ')
-            KNN_cross_validation = cross_val_predict(KNN,features,labels,cv=10,n_jobs=-1)
+            KNN_cross_validation = cross_val_predict(KNN,features,labels,cv=10)
             print(sklearn.metrics.classification_report(labels, KNN_cross_validation))
 
             X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.1, random_state=42,stratify=labels)
