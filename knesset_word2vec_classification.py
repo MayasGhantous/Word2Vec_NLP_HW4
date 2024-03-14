@@ -94,13 +94,11 @@ if __name__=='__main__':
     try:
         if len(sys.argv) != 3:
             print('must have 2 args')
-            #exit(1)
+            exit(1)
         random.seed(42)
         np.random.seed(42)
-        #data_path = sys.argv[1]
-        #model_path = sys.argv[2]
-        data_path = 'knesset_corpus.csv'
-        model_path = 'our_real_model.model'
+        data_path = sys.argv[1]
+        model_path = sys.argv[2]
         chunk_sizes = [1,3,5]
         for main_chunk_size in chunk_sizes:
 
@@ -119,17 +117,18 @@ if __name__=='__main__':
             #down sample the data
             plenary_data = down_sample(plenary_data,len(plenary_data) -len(committee_data))
             committee_data = down_sample(committee_data,len(committee_data)-len(plenary_data))
-
+            
             data = pd.concat([plenary_data,committee_data])
             data = data.sample(frac=1,random_state=42).reset_index(drop = True)
+            
 
             labels = data['protocol_type']
             features = embeddings_of_sentences(data['sentence_text'],model)
 
             KNN = KNeighborsClassifier(50)
-            print(f'KNN with corss validation: ')
+            '''print(f'KNN with corss validation: ')
             KNN_cross_validation = cross_val_predict(KNN,features,labels,cv=10)
-            print(sklearn.metrics.classification_report(labels, KNN_cross_validation))
+            print(sklearn.metrics.classification_report(labels, KNN_cross_validation))'''
 
             X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.1, random_state=42,stratify=labels)
             KNN.fit(X_train,y_train)
