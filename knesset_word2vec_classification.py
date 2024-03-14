@@ -2,13 +2,12 @@ import pandas as pd
 import numpy as np
 import random
 import sklearn
-from sklearn.model_selection import cross_val_predict,train_test_split
+from sklearn.model_selection import cross_val_predict , train_test_split
 from gensim.models import Word2Vec
 from sklearn.neighbors import KNeighborsClassifier
 import sys
 import os
 chunk_size = 1
-os.environ['LOKY_MAX_CPU_COUNT'] = '4'
 def process(group):
     try:
         
@@ -95,11 +94,13 @@ if __name__=='__main__':
     try:
         if len(sys.argv) != 3:
             print('must have 2 args')
-            exit(1)
+            #exit(1)
         random.seed(42)
         np.random.seed(42)
-        data_path = sys.argv[1]
-        model_path = sys.argv[2]
+        #data_path = sys.argv[1]
+        #model_path = sys.argv[2]
+        data_path = 'knesset_corpus.csv'
+        model_path = 'our_real_model.model'
         chunk_sizes = [1,3,5]
         for main_chunk_size in chunk_sizes:
 
